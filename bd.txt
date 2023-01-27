@@ -1,0 +1,58 @@
+1 Вывести имена всех когда-либо обслуживаемых пассажиров авиакомпаний 
+SELECT name FROM Passenger; 
+
+2 Вывести названия всеx авиакомпаний 
+SELECT name FROM Company; 
+
+3 Вывести все рейсы, совершенные из Москвы  
+SELECT * FROM Trip WHERE town_from = 'Moscow'; 
+
+4 Вывести имена людей, которые заканчиваются на "man" 
+SELECT name FROM Passenger WHERE name LIKE '%man'; 
+
+5 Вывести количество рейсов, совершенных на 
+TU-134 SELECT COUNT(*) AS count FROM Trip WHERE plane = 'TU-134'; 
+
+6 Какие компании совершали перелеты на Boeing 
+SELECT DISTINCT name FROM Company JOIN Trip ON Company.id=Trip.company WHERE plane = 'Boeing';
+ 
+7 Вывести все названия самолётов, на которых можно улететь в Москву (Moscow) 
+SELECT DISTINCT plane FROM Trip WHERE town_to = 'Moscow'; 
+
+8 В какие города можно улететь из Парижа (Paris) и сколько времени это займёт? 
+SELECT town_to, TIMEDIFF(time_in, time_out) AS flight_time FROM Trip WHERE town_from = 'Paris'; 
+
+9 Какие компании организуют перелеты с Владивостока (Vladivostok)? 
+SELECT DISTINCT name FROM Company JOIN Trip ON Company.id=Trip.company WHERE town_from = 'Vladivostok'; 
+
+10 Вывести вылеты, совершенные с 10 ч. по 14 ч. 1 января 1900 г 
+SELECT * FROM Trip WHERE time_out BETWEEN '1900-01-01 10:00:00' AND '1900-01-01 14:00:00';
+ 
+11 Вывести пассажиров с самым длинным именем 
+SELECT name FROM Passenger WHERE LENGTH(name) = (SELECT MAX(LENGTH(name)) FROM Passenger);
+
+ 12 Вывести id и количество пассажиров для всех прошедших полётов 
+SELECT trip, COUNT(passenger) as count FROM Pass_in_trip GROUP BY trip;
+
+ 13 Вывести имена людей, у которых есть полный тёзка среди пассажиров 
+SELECT name FROM Passenger GROUP BY name HAVING COUNT(name) > 1; 
+
+14 В какие города летал Bruce Willis 
+SELECT DISTINCT town_to FROM Trip JOIN Pass_in_trip ON Trip.id=Pass_in_trip.trip JOIN Passenger ON Pass_in_trip.passenger=Passenger.id WHERE name = 'Bruce Willis'; 
+
+15 Во сколько Стив Мартин (Steve Martin) прилетел в Лондон (London) 
+SELECT time_in FROM Trip JOIN Pass_in_trip ON Trip.id=Pass_in_trip.trip JOIN Passenger ON Pass_in_trip.passenger=Passenger.id WHERE name='Steve Martin' AND town_to='London'; 
+
+16 Вывести отсортированный по количеству перелетов (по убыванию) и имени (по возрастанию) список пассажиров, совершивших хотя бы 1 полет. SELECT name, COUNT(*) AS count FROM Passenger JOIN Pass_in_trip ON Passenger.id=Pass_in_trip.passenger GROUP BY passenger HAVING COUNT(trip) > 0 ORDER BY COUNT(trip) DESC, name; 
+
+17 Сколько рейсов совершили авиакомпании с Ростова (Rostov) в Москву (Moscow) ?
+ SELECT COUNT(*) as count FROM Trip WHERE town_from='Rostov' AND town_to='Moscow'; 
+
+18 Выведите имена пассажиров улетевших в Москву (Moscow) на самолете TU-134 
+SELECT DISTINCT name FROM Passenger JOIN Pass_in_trip ON Pass_in_trip.passenger=Passenger.id JOIN Trip ON Trip.id=Pass_in_trip.trip WHERE town_to='Moscow' AND plane='TU-134'; 
+
+19 Удалить компании, совершившие наименьшее количество рейсов. 
+DELETE FROM Company WHERE Company.id IN ( SELECT company FROM Trip GROUP BY company HAVING COUNT(id) = (SELECT MIN(count) FROM (SELECT COUNT(id) AS count FROM Trip GROUP BY company) AS min_count) ); 
+
+20 Удалить все перелеты, совершенные из Москвы (Moscow). 
+DELETE FROM Trip WHERE town_from='Moscow';
